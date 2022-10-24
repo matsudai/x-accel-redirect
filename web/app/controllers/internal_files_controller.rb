@@ -1,10 +1,6 @@
 class InternalFilesController < ApplicationController
-  # GET /internal_files?p=/path/to/file
+  # GET /internal_files
   def index
-    render json: {
-      status: 200,
-      x_original_file_path: request.headers['X-Original-File-Path'],
-      file_path: params[:p]
-    }
+    render json: {}
   end
 end
