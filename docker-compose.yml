@@ -1,0 +1,31 @@
+version: "3.9"
+services:
+  proxy:
+    build:
+      context: ./proxy
+      dockerfile: .devcontainer/Dockerfile
+    ports:
+      - "0.0.0.0:8080:80"
+    volumes:
+      - ./proxy/default.conf:/etc/nginx/conf.d/default.conf:ro
+    command: nginx -g 'daemon off;'
+  web:
+    build:
+      context: ./web
+      dockerfile: .devcontainer/Dockerfile
+      args:
+        - image_tag=3.1.2-bullseye
+        - uid=1000
+        - gid=1000
+        - app_root=/workspaces/x-accel-redirect/web
+    environment:
+      - RAILS_HOSTS=web
+    volumes:
+      - ./web:/workspaces/x-accel-redirect/web
+    expose:
+      - 3000
+    command: /usr/bin/env bash -c 'bundle install && rails s -b 0.0.0.0 -p 3000'
+networks:
+  default:
+    name: x-accel-redirect_default
+    external: true
