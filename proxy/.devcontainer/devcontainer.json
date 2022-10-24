@@ -1,0 +1,10 @@
+{
+  "name": "Nginx.js",
+  "build": {
+    "dockerfile": "./Dockerfile"
+  },
+  "extensions": [],
+  "postCreateCommand": "nginx -g 'daemon off;'", // nginx -s reload
+  "remoteUser": "root",
+  "runArgs": ["--network=x-accel-redirect_default"]
+}

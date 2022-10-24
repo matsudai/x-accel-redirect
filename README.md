@@ -11,3 +11,7 @@
 1. Create webapp (Rails)
 
     See ./web
+
+1. Create proxy (Nginx)
+
+    See ./proxy
