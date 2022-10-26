@@ -54,3 +54,23 @@
         # >   }
         # > }
         ```
+
+    1. 200 : Private access via verification.
+
+        ```sh
+        curl localhost:8080/private/private_files/fileName -H 'Authorization: 012345' -v
+
+        # >
+        # > > Authorization: 012345
+        # >
+        # > < -
+        # >
+        # > {
+        # >   "id": "fileName",
+        # >   "request_headers": {
+        # >     "authorization": null,
+        # >     "x_authorization": "012345",
+        # >     "x_user": "user-012345"
+        # >   }
+        # > }
+        ```

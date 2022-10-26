@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :private_files, only: [:show]
   resources :auth_verify, only: [:index]
   resources :internal_files, only: [:index]
   resources :external_files, only: [:index]
