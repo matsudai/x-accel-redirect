@@ -34,3 +34,23 @@
     1. 404 : http://localhost:8080/external_files?p=invalid-path.txt
     1. 404 : http://localhost:8080/internal_files?p=/ddd/eee/fff.txt
     1. 200 : http://localhost:8080/external_files?p=/aaa/bbb/ccc.txt
+    1. 200 : Verify authorization token.
+
+        ```sh
+        curl localhost:8080/auth_verify -H 'Authorization: 012345' -v
+
+        # > > Authorization: 012345
+        # >
+        # > < X-Authorization: 012345
+        # > < X-User: user-012345
+        # >
+        # > {
+        # >   "request_headers": {
+        # >     "authorization": "012345"
+        # >   },
+        # >   "response_headers": {
+        # >     "x_authorization": "012345",
+        # >     "x_user":"user-012345"
+        # >   }
+        # > }
+        ```
