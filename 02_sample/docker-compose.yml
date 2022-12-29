@@ -5,6 +5,7 @@ services:
     ports:
       - "0.0.0.0:8080:80"
     volumes:
+      - ./proxy/nginx.conf:/etc/nginx/nginx.conf:ro
       - ./proxy/default.conf:/etc/nginx/conf.d/default.conf:ro
       - ./proxy/static:/usr/share/nginx/static:ro
   web:
@@ -17,7 +18,7 @@ services:
         - gid=1000
         - app_root=/workspaces/x-accel-redirect/web
     environment:
-      - RAILS_HOSTS=web
+      - RAILS_HOSTS=web,rate-limit-web
     volumes:
       - ./web:/workspaces/x-accel-redirect/web
     expose:

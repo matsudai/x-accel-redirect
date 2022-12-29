@@ -21,7 +21,7 @@ wget localhost:8080/proxy/static/01_1k.txt -O /dev/null
 wget localhost:8080/proxy/static/02_10k.txt -O /dev/null
 # 20sec OK
 wget localhost:8080/proxy/static/03_20k.txt -O /dev/null
-# 100sec OK
+# 1000sec OK
 wget localhost:8080/proxy/static/04_1m.txt -O /dev/null
 ```
 
@@ -72,3 +72,88 @@ In devcontainer.
         # Bundle complete! 6 Gemfile dependencies, 54 gems now installed.
         # Bundled gems are installed into `./vendor/bundle`
     ```
+
+1. Routes
+
+    * Proxy (Nginx)
+        * /web/download
+        * /internal/download
+        * /web/upload
+        * /internal/upload
+        * /internal/upload-next
+    * Web (Rails)
+        * /public/download
+        * /public/upload
+        * /private/upload
+    * Storage (Mocked by Rails)
+        * /storage/download
+        * /storage/upload
+
+    ```txt
+    Client               Proxy                                       Web    Storage
+      *                    .                                          .        .
+      |-- /web/download -->|                                          .        .
+      |                    |                                          .        .
+      |                    |-- /public/download --------------------->|        .
+      |                    |                                          |        .
+      |                    |<== [DOWNLOAD URL] (/internal/download) ==|        .
+      |                    |                                          .        .
+      |                    |---+ [DOWNLOAD URL] (/internal/download)  .        .
+      |                    |   |                                      .        .
+      |                    |   |-- /storage/download ------------------------->|
+      |                    |   |                                      .        |
+      |<===================+<==+<============================== [LARGE DATA] ==|
+      *                    .                                          .        .
+    ```
+
+    ```txt
+    Client               Proxy                                                  Web   Storage
+      *     [HEADER]       .                                                     .       .
+      |-- /web/upload ---->|                                                     .       .
+      |                    |                                                     .       .
+      |                    |---+ /_auth_request                                  .       .
+      |                    |   |                                                 .       .
+      |                    |   |-- /public/upload ------------------------------>|       .
+      |                    |   |                                                 |       .
+      |                    |   |<============= [UPLOAD URL] (/internal/upload) ==|       .
+      |                    |<==|                                                 .       .
+      |                    |                                                     .       .
+      |                    |-------------------------+ [UPLOAD URL]              .       .
+      |                    |                         | (/internal/upload)        .       .
+      |      [BODY]        |                         |                           .       .
+      |-- /web/upload ---->+------------------------>+-- /storage/upload [LARGE DATA] -->|
+      |                    |                         |                           .       |
+      |                    |                         |<============ [AFTER UPLOAD URL] ==|
+      |                    |                         |          (/internal/upload-next)  .
+      |                    |<== [AFTER UPLOAD URL] ==|                           .       .
+      |                    |  (/internal/upload-next)                            .       .
+      |                    |                                                     .       .
+      |                    |---+ [AFTER UPLOAD URL] (/internal/upload-next)      .       .
+      |                    |   |                                                 .       .
+      |                    |   |-- /private/upload ----------------------------->|       .
+      |                    |   |                                                 |       .
+      |                    |   |<================================================|       .
+      |                    |   |                                                 .       .
+      |                    |<==|                                                 .       .
+      |                    |                                                     .       .
+      |<===================|                                                     .       .
+      *                    .                                                     .       .
+    ```
+
+### GET Rails files
+
+```sh
+# 1sec OK
+wget localhost:8080/web/download?s=1k -O /dev/null
+# 10sec OK
+wget localhost:8080/web/download?s=10k -O /dev/null
+# 20sec OK
+wget localhost:8080/web/download?s=20k -O /dev/null
+# 1000sec OK
+wget localhost:8080/web/download?s=1m -O /dev/null
+# 3sec NG (Timeout)
+wget localhost:8080/web/download?s=timeout -O /dev/null
+```
+
+curl localhost:8080/storage/upload -F file=@02_sample/README.md
+curl localhost:8080/storage/upload -F file=@02_sample/proxy/static/04_1m.txt

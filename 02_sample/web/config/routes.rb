@@ -1,6 +1,13 @@
 Rails.application.routes.draw do
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
-
-  # Defines the root path route ("/")
-  # root "articles#index"
+  namespace :private do
+    resources :upload, only: :create
+  end
+  namespace :public do
+    resources :download, only: :index
+    resources :upload, only: :create
+  end
+  namespace :storage do
+    resources :download, only: :index
+    resources :upload, only: :create
+  end
 end
