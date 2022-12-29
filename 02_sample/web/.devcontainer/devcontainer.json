@@ -1,0 +1,16 @@
+{
+  "name": "Web",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "image_tag": "3.2.0-bullseye",
+      "uid": "1000",
+      "gid": "1000",
+      "app_root": "${containerWorkspaceFolder}"
+    }
+  },
+  "extensions": [],
+  "postCreateCommand": "bundle",
+  "remoteUser": "ruby",
+  "runArgs": ["--network=x-accel-redirect_default"]
+}
