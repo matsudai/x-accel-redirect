@@ -21,7 +21,7 @@ wget localhost:8080/proxy/static/01_1k.txt -O /dev/null
 wget localhost:8080/proxy/static/02_10k.txt -O /dev/null
 # 20sec OK
 wget localhost:8080/proxy/static/03_20k.txt -O /dev/null
-# 100sec OK
+# 1000sec OK
 wget localhost:8080/proxy/static/04_1m.txt -O /dev/null
 ```
 
@@ -72,3 +72,45 @@ In devcontainer.
         # Bundle complete! 6 Gemfile dependencies, 54 gems now installed.
         # Bundled gems are installed into `./vendor/bundle`
     ```
+
+1. Routes
+
+    * Proxy (Nginx)
+        * /web/download
+        * /internal/download
+    * Web (Rails)
+        * /public/download
+    * Storage (Mocked by Rails)
+        * /storage/download
+
+    ```txt
+    Client               Proxy                                       Web    Storage
+      *                    .                                          .        .
+      |-- /web/download -->|                                          .        .
+      |                    |                                          .        .
+      |                    |-- /public/download --------------------->|        .
+      |                    |                                          |        .
+      |                    |<== [DOWNLOAD URL] (/internal/download) ==|        .
+      |                    |                                          .        .
+      |                    |---+ [DOWNLOAD URL] (/internal/download)  .        .
+      |                    |   |                                      .        .
+      |                    |   |-- /storage/download ------------------------->|
+      |                    |   |                                      .        |
+      |<===================+<==+<============================== [LARGE DATA] ==|
+      *                    .                                          .        .
+    ```
+
+### GET Rails files
+
+```sh
+# 1sec OK
+wget localhost:8080/web/download?s=1k -O /dev/null
+# 10sec OK
+wget localhost:8080/web/download?s=10k -O /dev/null
+# 20sec OK
+wget localhost:8080/web/download?s=20k -O /dev/null
+# 1000sec OK
+wget localhost:8080/web/download?s=1m -O /dev/null
+# 3sec NG (Timeout)
+wget localhost:8080/web/download?s=timeout -O /dev/null
+```
