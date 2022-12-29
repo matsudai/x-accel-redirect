@@ -9,6 +9,9 @@
       "app_root": "${containerWorkspaceFolder}"
     }
   },
+  "containerEnv": {
+    "RAILS_HOSTS": "web"
+  },
   "extensions": [],
   "postCreateCommand": "bundle",
   "remoteUser": "ruby",
