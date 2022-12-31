@@ -78,10 +78,16 @@ In devcontainer.
     * Proxy (Nginx)
         * /web/download
         * /internal/download
+        * /web/upload
+        * /internal/upload
+        * /internal/upload-next
     * Web (Rails)
         * /public/download
+        * /public/upload
+        * /private/upload
     * Storage (Mocked by Rails)
         * /storage/download
+        * /storage/upload
 
     ```txt
     Client               Proxy                                       Web    Storage
@@ -98,6 +104,40 @@ In devcontainer.
       |                    |   |                                      .        |
       |<===================+<==+<============================== [LARGE DATA] ==|
       *                    .                                          .        .
+    ```
+
+    ```txt
+    Client               Proxy                                                  Web   Storage
+      *     [HEADER]       .                                                     .       .
+      |-- /web/upload ---->|                                                     .       .
+      |                    |                                                     .       .
+      |                    |---+ /_auth_request                                  .       .
+      |                    |   |                                                 .       .
+      |                    |   |-- /public/upload ------------------------------>|       .
+      |                    |   |                                                 |       .
+      |                    |   |<============= [UPLOAD URL] (/internal/upload) ==|       .
+      |                    |<==|                                                 .       .
+      |                    |                                                     .       .
+      |                    |-------------------------+ [UPLOAD URL]              .       .
+      |                    |                         | (/internal/upload)        .       .
+      |      [BODY]        |                         |                           .       .
+      |-- /web/upload ---->+------------------------>+-- /storage/upload [LARGE DATA] -->|
+      |                    |                         |                           .       |
+      |                    |                         |<============ [AFTER UPLOAD URL] ==|
+      |                    |                         |          (/internal/upload-next)  .
+      |                    |<== [AFTER UPLOAD URL] ==|                           .       .
+      |                    |  (/internal/upload-next)                            .       .
+      |                    |                                                     .       .
+      |                    |---+ [AFTER UPLOAD URL] (/internal/upload-next)      .       .
+      |                    |   |                                                 .       .
+      |                    |   |-- /private/upload ----------------------------->|       .
+      |                    |   |                                                 |       .
+      |                    |   |<================================================|       .
+      |                    |   |                                                 .       .
+      |                    |<==|                                                 .       .
+      |                    |                                                     .       .
+      |<===================|                                                     .       .
+      *                    .                                                     .       .
     ```
 
 ### GET Rails files
